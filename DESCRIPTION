@@ -1,0 +1,26 @@
+Package: ukcpR
+Type: Package
+Title: Work with the Met Office UKCP API via R
+Version: 0.1.0
+Author: Shane Jackson
+Maintainer: Shane Jackson <shane.jackson@gmx.co.uk>
+Description: This package lets you interact with the UK Met Office UKCP API using R. It is primarily aimed at extracting and manipulating .csv exports (at least for now).
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.3
+Roxygen: list(markdown = TRUE)
+Suggests: 
+    rmarkdown,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Imports: 
+    dplyr,
+    httr,
+    janitor,
+    lifecycle,
+    lubridate,
+    sf,
+    stringr,
+    tidyr,
+    xml2

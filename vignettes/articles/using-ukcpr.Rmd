@@ -1,0 +1,67 @@
+---
+title: "Using ukcpR"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This page will run through the basics of using the package in more detail than you can get from the readme.
+
+## Before you begin
+
+Before you can use this package, you need to already have set up an account to use the [Met Office](https://www.metoffice.gov.uk/) [UK Climate Projections (UKCP) data portal](https://ukclimateprojections-ui.metoffice.gov.uk/ui/home). You can do so by [signing up](https://ukclimateprojections-ui.metoffice.gov.uk/user/register).
+
+Once you have an account, you'll need to use your API key to make requests. This can be found on your [My UKCP page](https://ukclimateprojections-ui.metoffice.gov.uk/user) (note you'll need to be signed in to access this link). One you have done this, I recommend saving the API key as an environment variable (named `UKCP_API_KEY`) in your `.Renviron` file. This will save you having to manually declare it each time you write some code using a function that makes an API call. The function `usethis::edit_renviron()` makes it simple to access the right file.
+
+## Sending a query
+
+Depending on whether you want to get observation or projection data, you will need to use `start_ukcp_observation_csv_job()` or `start_ukcp_projection_csv_job()` respectively. Remember that (at least for now) only certain datasets can be drawn upon:
+
+* Observations from HadUK-Grid over UK for daily data
+* Observations from HadUK-Grid over UK for monthly, seasonal or annual data
+* Variables from local/regional/global projections over UK for monthly, seasonal or annual data
+
+In either case you will have the option to set multiple parameters for the query (as per the below example). You might have to do some playing round/testing via the [user submission form](https://ukclimateprojections-ui.metoffice.gov.uk/products) to understand the accepted values for each parameter and what they mean. Although there is [limited API documentation](https://ukclimateprojections-ui.metoffice.gov.uk/help/api), it doesn't go into the detail needed to define said parameters.
+
+```{r setup, echo = T, eval = T}
+library(ukcpR)
+
+example_call <-  start_ukcp_observation_csv_job(
+  label = "testtthat-good-query",
+  identifier = "LS6_Subset_02",
+  area_type = "point",
+  area_details = c(292500, 72500),
+  collection = "land-obs_5",
+  temp_avg = "day",
+  year_range = c(1960, 2021),
+  variable = "rainfall"
+)
+
+example_call
+```
+
+## Getting your results
+
+As you can see from the above example, the results of a call are to return you the job ID (`job_id`), request URL (`req_url`) and most crucially, the status URL (`status_url`). The last of these is the URL you use to actually access your results via the `download_ukcp_csv_results()` function (regardless of whether you are looking at observation or projection data).
+
+This function polls the server every five seconds (__note__: it can take several minutes to complete queries) to check if your job is finished. When it is, it will download a zip file to a folder (specified by you) in your working directory and extract any csv files within. You can optionally keep the zip file. An example following on from our initial request is below:
+
+```{r download, echo = T, eval = F}
+download_ukcp_csv_results(example_call$status_url, output_folder = "assets")
+```
+
+Note UKCP provides csv file names as timestamps, rather than more useful data describing what is contained within. Thus you may want to rename files in some way (possibly a future function here will programtically rename them based on metadata contained within).
+
+## Reading your results into R
+
+Finally, you can read your results into R for further analysis, visualisation, etc. There are different functions for observation (`read_observation_csv()`) and projection (`read_projection_csv()`). These functions will return a dataframe which includes some metadata columns in addition to the data you are actually after. Some processing of the data will be done, particularly where the data is 'drawn' over a custom-defined grid. You can also choose, where using grid/point-based data, to convert from northings/eastings to latitude/longitude.
+
+```{r read, echo = T, eval = T}
+example_csv <- read_observation_csv(here::here("assets/subset_2023-07-03T09-25-13.csv"))
+
+head(example_csv, 5)
+```
