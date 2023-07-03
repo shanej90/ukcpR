@@ -39,8 +39,9 @@ text, and even if individual parameters are valid, they may not work in
 combination. Reading up/doing some trials via the UI initially will
 probably save a lot of frustration.
 
-See the [how-to guide](articles/using-ukcpr.html) for more information
-and examples.
+See the [how-to
+guide](https://shanej90.github.io/ukcpR/articles/using-ukcpr) for more
+information and examples.
 
 ## Installation
 
